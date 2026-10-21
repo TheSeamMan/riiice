@@ -362,3 +362,44 @@ hl.window_rule({
     move  = "20 monitor_h-120",
     float = true,
 })
+
+-- rice: wallpaper-driven border colors & animations
+pcall(require, "animations")
+
+local ok, c = pcall(require, "colors")
+if ok then
+  hl.config({
+    general = {
+      border_size = 3,
+      col = {
+        active_border = { colors = { c.active_a, c.active_b }, angle = 45 },
+        inactive_border = c.inactive,
+      },
+    },
+    decoration = {
+      shadow = {
+        enabled = true,
+        range = 15,
+        render_power = 3,
+        color = c.active_a,
+        color_inactive = "rgba(00000000)",
+      },
+    },
+  })
+end
+
+hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
+
+-- login: share session with systemd, start Shellby, and restore wallpaper
+hl.on("hyprland.start", function()
+  hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE")
+  hl.exec_cmd("systemctl --user start rice-shell.service")
+  hl.exec_cmd(os.getenv("HOME") .. "/rice/scripts/restorewall")
+end)
+
+hl.on("hyprland.shutdown", function()
+  hl.exec_cmd("systemctl --user stop rice-shell.service")
+end)
+
+-- Super+W opens the Quickshell wallpaper picker
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("systemd-run --user --scope -q -p MemoryMax=3G " .. os.getenv("HOME") .. "/rice/picker-qs/launch.sh"))
