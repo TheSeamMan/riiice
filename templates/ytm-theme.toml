@@ -1,0 +1,10 @@
+[colors]
+playback_bar_bg = "{{background | darken(0.04)}}"
+selected_item = "{{color5 | darken(0.35)}}"
+progress_filled = "{{color5}}"
+progress_empty = "{{color8}}"
+lyrics_played = "{{color8}}"
+lyrics_current = "{{color10}}"
+lyrics_upcoming = "{{foreground}}"
+active_tab = "{{color12}}"
+inactive_tab = "{{color8}}"

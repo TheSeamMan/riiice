@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -e
+[ -n "$1" ] || { echo "usage: setwall IMAGE [auto|time|dark|light]"; exit 1; }
+img="$(realpath "$1")"
+mode="${2:-auto}"
+
+mkdir -p ~/.cache/rice ~/.cache/awww ~/.config/kitty ~/.config/hypr ~/rice/shell-qs
+
+# 1. Light or dark palette?
+case "$mode" in
+  auto)
+    lum="$(magick "${img}[0]" -resize 1x1 -format '%[fx:luma]' info:)"
+    if awk "BEGIN{exit !($lum > 0.5)}"; then scheme=light; else scheme=dark; fi
+    echo "brightness $lum -> $scheme" ;;
+  time)
+    hour="$(date +%-H)"
+    if [ "$hour" -ge 7 ] && [ "$hour" -lt 19 ]; then scheme=light; else scheme=dark; fi ;;
+  *) scheme="$mode" ;;
+esac
+echo "$scheme" > ~/.cache/rice/scheme
+
+# 2. Wallpaper daemon
+pgrep -x awww-daemon >/dev/null || { setsid awww-daemon >/dev/null 2>&1 & sleep 0.5; }
+
+# 3. Palette and all templates
+wallust -C ~/rice/wallust.toml --templates-dir ~/rice/templates run -p "salience${scheme}16" "$img"
+
+# 4. Wallpaper sizing: cap small images at 200% with unique cache filenames
+read -r w h <<< "$(magick identify -ping -format "%w %h" "${img}[0]")"
+frames="$(magick identify -format "%n\n" "$img" 2>/dev/null | head -n 1)"
+long=$(( w > h ? w : h ))
+target_img="$img"
+
+if [ "$long" -lt 1280 ]; then
+  ext="${img##*.}"
+  hash="$(printf '%s' "$img" | md5sum | cut -c1-10)"
+  target_img="$HOME/.cache/rice/scaled_${hash}.${ext}"
+
+  if [ ! -f "$target_img" ]; then
+    if [ "${frames:-1}" -gt 1 ]; then
+      magick "$img" -coalesce -filter Mitchell -resize 200% -dispose None "$target_img"
+    else
+      magick "$img" -filter Lanczos -resize 200% "$target_img"
+    fi
+  fi
+
+  if [ $(( long * 2 )) -gt 1920 ]; then
+    fit=fit
+  else
+    fit=no
+  fi
+else
+  fit=fit
+fi
+
+bg_color="$(cat ~/.cache/rice/bg 2>/dev/null | tr -d '#[:space:]')"
+[ -n "$bg_color" ] || bg_color="000000"
+
+awww img "$target_img" --resize "$fit" --fill-color "$bg_color" --transition-type wipe
+
+# 5. Reload apps
+pkill -USR1 kitty || true
+pkill -USR2 cava || true
+command -v pywalfox >/dev/null && pywalfox update || true
+if [ "$scheme" = light ]; then pref=prefer-light; else pref=prefer-dark; fi
+gsettings set org.gnome.desktop.interface color-scheme "$pref" 2>/dev/null || true
+gsettings set org.gnome.desktop.interface gtk-theme '' 2>/dev/null || true
+gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3' 2>/dev/null || true
+hyprctl reload >/dev/null 2>&1 || true
+
+# 6. Remember for login restore and the timer
+echo "$img" > ~/.cache/rice/current
+echo "$mode" > ~/.cache/rice/mode

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+mkdir -p ~/rice/thumbs
+cd ~/rice/wallpapers || exit 1
+find . -maxdepth 1 -type f -print0 | xargs -0 -P 8 -I{} sh -c '
+    base=$(basename "$1")
+    thumb="$HOME/rice/thumbs/${base}.jpg"
+    [ -f "$thumb" ] || magick "$1[0]" -resize 640x400^ -gravity center -extent 640x400 -quality 84 "$thumb"
+' _ {}
+echo "Thumbnails generated in ~/rice/thumbs!"

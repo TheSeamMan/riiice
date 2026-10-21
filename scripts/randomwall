@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+pgrep -x awww-daemon >/dev/null || exit 0
+dir="$HOME/rice/wallpapers"
+cur="$(cat ~/.cache/rice/current 2>/dev/null)"
+mode="$(cat ~/.cache/rice/mode 2>/dev/null || echo auto)"
+pick="$(find "$dir" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.gif' \) | grep -vxF "$cur" | shuf -n 1)"
+[ -n "$pick" ] || exit 0
+exec "$HOME/rice/scripts/setwall" "$pick" "$mode"

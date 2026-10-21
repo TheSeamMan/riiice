@@ -1,0 +1,30 @@
+palette = "wallust"
+add_newline = false
+format = "$directory$git_branch$git_status$cmd_duration$line_break$character"
+
+[directory]
+truncation_length = 3
+format = "[\ue0b6](fg:acc1)[ $path ](bg:acc1 fg:base)[\ue0b4](fg:acc1) "
+
+[git_branch]
+symbol = "\ue0a0 "
+format = "[\ue0b6](fg:acc2)[ $symbol$branch ](bg:acc2 fg:base)[\ue0b4](fg:acc2) "
+
+[git_status]
+format = "([\ue0b6](fg:acc3)[ $all_status$ahead_behind ](bg:acc3 fg:base)[\ue0b4](fg:acc3) )"
+
+[cmd_duration]
+min_time = 2000
+format = "([\ue0b6](fg:dim)[ $duration ](bg:dim fg:text)[\ue0b4](fg:dim) )"
+
+[character]
+success_symbol = "[\u276f](bold fg:acc1)"
+error_symbol = "[\u276f](bold fg:acc3)"
+
+[palettes.wallust]
+base = "{{background}}"
+text = "{{foreground}}"
+acc1 = "{{color5}}"
+acc2 = "{{color4}}"
+acc3 = "{{color1}}"
+dim = "{{color8}}"

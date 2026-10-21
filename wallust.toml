@@ -1,0 +1,17 @@
+backend = "resized"
+palette = "saliencedark16"
+
+[templates]
+bg = { template = 'bg', target = '~/.cache/rice/bg' }
+kitty = { template = 'kitty.conf', target = '~/.config/kitty/wallust.conf' }
+hypr = { template = 'hypr-colors.lua', target = '~/.config/hypr/colors.lua' }
+qs = { template = 'qs-colors.json', target = '~/rice/shell-qs/colors.json' }
+gtk3 = { template = 'gtk.css', target = '~/.config/gtk-3.0/gtk.css' }
+gtk4 = { template = 'gtk.css', target = '~/.config/gtk-4.0/gtk.css' }
+qt = { template = 'qt.colors', target = '~/.local/share/color-schemes/Wallust.colors' }
+btop = { template = 'btop.theme', target = '~/.config/btop/themes/wallust.theme' }
+cava = { template = 'cava.conf', target = '~/.config/cava/config' }
+ytm = { template = 'ytm-theme.toml', target = '~/.config/ytm-player/theme.toml' }
+starship = { template = 'starship.toml', target = '~/.config/starship.toml' }
+pywal = { template = 'colors.json', target = '~/.cache/wal/colors.json' }
+vesktop = { template = 'vesktop.css', target = '~/.config/vesktop/themes/wallust.theme.css' }

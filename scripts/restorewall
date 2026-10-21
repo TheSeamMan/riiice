@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+img="$(cat ~/.cache/rice/current 2>/dev/null)"
+mode="$(cat ~/.cache/rice/mode 2>/dev/null || echo auto)"
+[ -f "$img" ] || exit 0
+exec ~/rice/scripts/setwall "$img" "$mode"

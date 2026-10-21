@@ -1,0 +1,57 @@
+/**
+ * @name wallust
+ * @description wallust palette layered over system24
+ */
+:root:root {
+  --colors: on;
+  --text-0: var(--bg-4);
+  --text-1: {{foreground}};
+  --text-2: color-mix(in oklch, var(--text-1), var(--bg-4) 10%);
+  --text-3: color-mix(in oklch, var(--text-1), var(--bg-4) 25%);
+  --text-4: color-mix(in oklch, var(--bg-4) 45%, var(--text-1));
+  --text-5: color-mix(in oklch, var(--bg-4) 65%, var(--text-1));
+  --bg-4: {{background}};
+  --bg-3: color-mix(in oklch, var(--bg-4), var(--text-1) 4%);
+  --bg-2: color-mix(in oklch, var(--bg-4), var(--text-1) 8%);
+  --bg-1: color-mix(in oklch, var(--bg-4), var(--text-1) 12%);
+  --hover: color-mix(in oklch, var(--text-1), transparent 90%);
+  --active: color-mix(in oklch, var(--text-1), transparent 80%);
+  --active-2: color-mix(in oklch, var(--text-1), transparent 70%);
+  --accent-1: {{color13}};
+  --accent-2: {{color5}};
+  --accent-3: {{color5}};
+  --accent-4: color-mix(in oklch, var(--accent-3), white 12%);
+  --accent-5: color-mix(in oklch, var(--accent-3), black 15%);
+  --accent-new: {{color1}};
+  --online: {{color2}};
+  --dnd: {{color1}};
+  --idle: {{color3}};
+  --streaming: {{color5}};
+  --offline: var(--text-4);
+  --border-hover: var(--accent-2);
+  --red-1: color-mix(in oklch, {{color1}}, white 12%);
+  --red-2: {{color1}};
+  --red-3: color-mix(in oklch, {{color1}}, black 8%);
+  --red-4: color-mix(in oklch, {{color1}}, black 16%);
+  --red-5: color-mix(in oklch, {{color1}}, black 24%);
+  --green-1: color-mix(in oklch, {{color2}}, white 12%);
+  --green-2: {{color2}};
+  --green-3: color-mix(in oklch, {{color2}}, black 8%);
+  --green-4: color-mix(in oklch, {{color2}}, black 16%);
+  --green-5: color-mix(in oklch, {{color2}}, black 24%);
+  --blue-1: color-mix(in oklch, {{color4}}, white 12%);
+  --blue-2: {{color4}};
+  --blue-3: color-mix(in oklch, {{color4}}, black 8%);
+  --blue-4: color-mix(in oklch, {{color4}}, black 16%);
+  --blue-5: color-mix(in oklch, {{color4}}, black 24%);
+  --yellow-1: color-mix(in oklch, {{color3}}, white 12%);
+  --yellow-2: {{color3}};
+  --yellow-3: color-mix(in oklch, {{color3}}, black 8%);
+  --yellow-4: color-mix(in oklch, {{color3}}, black 16%);
+  --yellow-5: color-mix(in oklch, {{color3}}, black 24%);
+  --purple-1: color-mix(in oklch, {{color5}}, white 12%);
+  --purple-2: {{color5}};
+  --purple-3: color-mix(in oklch, {{color5}}, black 8%);
+  --purple-4: color-mix(in oklch, {{color5}}, black 16%);
+  --purple-5: color-mix(in oklch, {{color5}}, black 24%);
+}
