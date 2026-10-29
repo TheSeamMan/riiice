@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
-set -e
 [ -n "$1" ] || { echo "usage: setwall IMAGE [auto|time|dark|light]"; exit 1; }
 img="$(realpath "$1")"
 mode="${2:-auto}"
 
-mkdir -p ~/.cache/rice ~/.cache/awww ~/.config/kitty ~/.config/hypr ~/rice/shell-qs
+mkdir -p ~/.cache/rice ~/.cache/awww ~/.cache/wal ~/.config/kitty ~/.config/hypr \
+         ~/.config/gtk-3.0 ~/.config/gtk-4.0 ~/.local/share/color-schemes \
+         ~/.config/btop/themes ~/.config/cava ~/.config/ytm-player \
+         ~/.config/vesktop/themes ~/rice/shell-qs
 
 # 1. Light or dark palette?
 case "$mode" in
   auto)
-    lum="$(magick "${img}[0]" -resize 1x1 -format '%[fx:luma]' info:)"
-    if awk "BEGIN{exit !($lum > 0.5)}"; then scheme=light; else scheme=dark; fi
+    lum="$(magick "${img}[0]" -resize 1x1 -format '%[fx:luma]' info: 2>/dev/null || echo 0.2)"
+    if awk "BEGIN{exit !($lum > 0.68)}"; then scheme=light; else scheme=dark; fi
     echo "brightness $lum -> $scheme" ;;
   time)
     hour="$(date +%-H)"
@@ -22,11 +24,12 @@ echo "$scheme" > ~/.cache/rice/scheme
 # 2. Wallpaper daemon
 pgrep -x awww-daemon >/dev/null || { setsid awww-daemon >/dev/null 2>&1 & sleep 0.5; }
 
-# 3. Palette and all templates
-wallust -C ~/rice/wallust.toml --templates-dir ~/rice/templates run -p "salience${scheme}16" "$img"
+# 3. Palette and all templates (supports wallust 3.x and 4.x)
+wallust -C ~/rice/wallust.toml --templates-dir ~/rice/templates run -p "salience${scheme}16" "$img" 2>/dev/null || \
+wallust -C ~/rice/wallust.toml --templates-dir ~/rice/templates run "$img" || true
 
 # 4. Wallpaper sizing: cap small images at 200% with unique cache filenames
-read -r w h <<< "$(magick identify -ping -format "%w %h" "${img}[0]")"
+read -r w h <<< "$(magick identify -ping -format "%w %h" "${img}[0]" 2>/dev/null || echo "1920 1080")"
 frames="$(magick identify -format "%n\n" "$img" 2>/dev/null | head -n 1)"
 long=$(( w > h ? w : h ))
 target_img="$img"
@@ -71,3 +74,4 @@ hyprctl reload >/dev/null 2>&1 || true
 # 6. Remember for login restore and the timer
 echo "$img" > ~/.cache/rice/current
 echo "$mode" > ~/.cache/rice/mode
+$HOME/rice/scripts/sync-rgb &

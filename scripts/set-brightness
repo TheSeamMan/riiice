@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+pct="${1:-80}"
+pct="${pct//%/}"
+
+# 1. Adjust all physical laptop backlight controllers
+for dev in /sys/class/backlight/*; do
+    [ -d "$dev" ] || continue
+    name=$(basename "$dev")
+    brightnessctl -d "$name" set "${pct}%" >/dev/null 2>&1 || {
+        max=$(cat "$dev/max_brightness" 2>/dev/null || echo 100)
+        val=$(( max * pct / 100 ))
+        [ "$val" -lt 5 ] && val=5
+        echo "$val" > "$dev/brightness" 2>/dev/null
+    }
+done
+
+# 2. Save state so UI stays in sync even on desktop/external panels
+mkdir -p ~/.cache/rice
+echo "$pct" > ~/.cache/rice/brightness

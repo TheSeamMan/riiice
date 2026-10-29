@@ -1,0 +1,12 @@
+{
+  "active_op": 96,
+  "inactive_op": 96,
+  "rounding": 0,
+  "gaps_in": 10,
+  "gaps_out": 17,
+  "border_size": 6,
+  "blur_size": 4,
+  "blur_passes": 1,
+  "blur_on": true,
+  "anim_on": true
+}

@@ -33,13 +33,20 @@ ShellRoot {
         }
     }
 
+    Timer {
+        id: quitTimer
+        interval: 450
+        onTriggered: Qt.quit()
+    }
+
     function pick(i) {
         if (i < 0 || i >= walls.count) return
         const file = walls.get(i).file
         const orig = home + "/rice/wallpapers/" + file.slice(0, file.length - 4)
+        win.visible = false
         playSound("twinkle")
-        Quickshell.execDetached([home + "/rice/scripts/setwall", orig])
-        Qt.quit()
+        Quickshell.execDetached(["setsid", home + "/rice/scripts/setwall", orig])
+        quitTimer.start()
     }
 
     ListModel { id: walls }
@@ -67,7 +74,7 @@ ShellRoot {
             PathLine { x: sh.width * (1 - sh.tip); y: 0 }
             PathLine { x: sh.width; y: sh.height / 2 }
             PathLine { x: sh.width * (1 - sh.tip); y: sh.height }
-            PathLine { x: sh.width * 0; y: sh.height }
+            PathLine { x: 0; y: sh.height }
             PathLine { x: sh.width * sh.tip; y: sh.height / 2 }
             PathLine { x: 0; y: 0 }
         }

@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# Instantly paints MSI GE68HX Keyboard & Lightbar in 6 hyper-saturated Wallust color zones!
+
+COLORS_JSON="$HOME/rice/shell-qs/colors.json"
+[ ! -f "$COLORS_JSON" ] && exit 0
+
+python3 - "$COLORS_JSON" << 'PYEOF'
+import sys, json, colorsys
+from pathlib import Path
+from openrgb import OpenRGBClient
+from openrgb.utils import RGBColor
+
+pal_data = json.loads(Path(sys.argv[1]).read_text())
+
+def stained_glass_rgb(h, used_hues):
+    h = h.lstrip("#")
+    r, g, b = (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)) if len(h) == 6 else (189, 147, 249)
+    hue, sat, val = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+
+    if sat < 0.15:
+        hue = 0.78 if b >= r else 0.08
+
+    # Guarantee every zone on the keyboard has a noticeably distinct hue!
+    for u_h in used_hues:
+        dist = min(abs(hue - u_h), 1.0 - abs(hue - u_h))
+        if dist < 0.11:
+            hue = (hue + 0.14) % 1.0
+    used_hues.append(hue)
+
+    # 100% Saturation kills white-light washout inside keycap legends!
+    nr, ng, nb = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+    # Gamma 2.2 on secondary channel so colors look deep and stained-glass pure
+    nr, ng, nb = pow(nr, 2.2), pow(ng, 2.2), pow(nb, 2.2)
+    mx = max(nr, ng, nb, 0.001)
+    return (
+        min(255, int((nr / mx) * 255)),
+        min(255, int((ng / mx) * 255)),
+        min(255, int((nb / mx) * 255)),
+    )
+
+def lerp_rgb(c1, c2, t):
+    return (
+        int(c1[0] + (c2[0] - c1[0]) * t),
+        int(c1[1] + (c2[1] - c1[1]) * t),
+        int(c1[2] + (c2[2] - c1[2]) * t),
+    )
+
+used_hues = []
+slots = ["c5", "c4", "c6", "c2", "c3", "c1"]
+zones = [stained_glass_rgb(pal_data.get(k, "#bd93f9"), used_hues) for k in slots]
+
+print("Applied Stained-Glass Wallust Zones:", [f"#{r:02x}{g:02x}{b:02x}" for r, g, b in zones])
+
+try:
+    cli = OpenRGBClient("127.0.0.1", 6742, "WallustZonePainter")
+except Exception as e:
+    sys.exit(0)
+
+seen = set()
+for dev in cli.devices:
+    if dev.name in seen or len(dev.leds) == 0:
+        continue
+    seen.add(dev.name)
+
+    for m_name in ("Direct", "Custom", "Per Key", "Static"):
+        try:
+            dev.set_mode(m_name)
+            break
+        except Exception:
+            pass
+
+    n = len(dev.leds)
+    colors_out = []
+    for i in range(n):
+        # Smooth multi-color gradient ribbon across all keys & lightbar LEDs!
+        pos = (i / max(1.0, n - 1)) * (len(zones) - 1)
+        idx1 = int(pos)
+        idx2 = min(len(zones) - 1, idx1 + 1)
+        frac = pos - idx1
+        c = lerp_rgb(zones[idx1], zones[idx2], frac)
+        colors_out.append(RGBColor(*c))
+
+    dev.set_colors(colors_out, fast=False)
+PYEOF

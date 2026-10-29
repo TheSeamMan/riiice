@@ -1,5 +1,6 @@
 backend = "resized"
 palette = "saliencedark16"
+threshold = 11
 
 [templates]
 bg = { template = 'bg', target = '~/.cache/rice/bg' }
